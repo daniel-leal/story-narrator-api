@@ -1,0 +1,15 @@
+[run]
+# Files or patterns to omit from coverage analysis
+omit =
+    app/core/database.py
+    app/main.py
+branch = True
+concurrency = gevent
+
+[report]
+show_missing = True
+skip_covered = False
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
+    raise NotImplementedError

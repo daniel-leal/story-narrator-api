@@ -19,6 +19,8 @@ help:
 	@echo "  make show                             - Display the current migration status"
 	@echo "  make run                              - Start the FastAPI application locally"
 	@echo "  make test                             - Run tests locally"
+	@echo "  make coverage                         - Run tests with coverage report"
+	@echo "  make coverage-html                    - Generate HTML coverage report"
 
 # Docker commands
 .PHONY: docker-up
@@ -71,3 +73,15 @@ run:
 .PHONY: test
 test:
 	@poetry run pytest
+
+.PHONY: coverage
+coverage:
+	@poetry run pytest --cov=app --cov-branch --cov-config=.coveragerc
+
+.PHONY: coverage-html
+coverage-html:
+	@poetry run pytest --cov=app --cov-branch --cov-config=.coveragerc --cov-report=html
+
+.PHONY: coverage-html
+coverage-xml:
+	@poetry run pytest --cov=app --cov-branch --cov-config=.coveragerc --cov-report=xml
