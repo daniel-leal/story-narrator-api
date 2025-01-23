@@ -1,0 +1,57 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environments
+.env/
+.venv/
+
+# Poetry
+poetry.lock
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Pytest cache
+.cache/
+.pytest_cache/
+
+# Mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre
+.pyre/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+
+# Logs
+*.log
+
+# Alembic
+migrations/versions/*.pyc
+
+# Environment variables
+.env
+
+# Docker
+docker-compose.override.yml
+*.log
+
+# Database files
+*.sqlite3
+*.db
+
+# MacOS
+.DS_Store
+
+# IDEs
+.idea/
