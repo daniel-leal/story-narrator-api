@@ -5,7 +5,7 @@ description = "GenAI for build stories"
 authors = [{ name = "Daniel Leal", email = "daniel.leal@bhub.ai" }]
 license = { text = "MIT" }
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.13"
 dependencies = [
     "fastapi (>=0.115.6,<0.116.0)",
     "uvicorn (>=0.34.0,<0.35.0)",
@@ -40,7 +40,10 @@ mypy = "^1.14.1"
 ruff = "^0.9.2"
 debugpy = "^1.8.12"
 httpx = "^0.28.1"
-
+coverage = "^7.6.10"
+pytest-cov = "^6.0.0"
+coveralls = "^4.0.1"
+gevent = "^24.11.1"
 
 [tool.black]
 line-length = 88
@@ -61,3 +64,9 @@ ignore = [
     "E501", # line too long (handled by black)
 ]
 fixable = ["F", "E"]
+
+[tool.pytest.ini_options]
+addopts = "--cov=app --cov-report=term --cov-report=xml:coverage.xml"
+
+[tool.coverage.run]
+concurrency = ["gevent"]

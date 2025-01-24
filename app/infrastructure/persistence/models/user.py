@@ -13,6 +13,3 @@ class User(Base):
     email: Mapped[str] = mapped_column(String, index=True, unique=True)
     hashed_password: Mapped[str] = mapped_column(String, index=True)
     is_active: Mapped[bool] = mapped_column(Boolean, index=True)
-
-    def __repr__(self):
-        return f"<User(id={self.id}, name={self.name}, email={self.email})>"
