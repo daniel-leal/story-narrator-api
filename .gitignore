@@ -55,3 +55,7 @@ docker-compose.override.yml
 
 # IDEs
 .idea/
+
+
+# TODOs and Docs
+.docs.*

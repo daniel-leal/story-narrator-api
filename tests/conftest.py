@@ -11,7 +11,7 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import DatabaseSessionManager, get_async_session
-from app.infrastructure.persistence.models.base import BaseModel
+from app.core.persistence.models.base import BaseModel
 from app.main import app
 
 logger = logging.getLogger(__name__)
