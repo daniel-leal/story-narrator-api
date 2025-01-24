@@ -7,10 +7,13 @@ from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from app.infrastructure.persistence.models.base import BaseModel
-from app.infrastructure.persistence.models.user import User  # noqa: F401
+from app.auth.infrastructure.persistence.models.user import User  # noqa: F401
+from app.character.infrastructure.persistence.models.character import (  # noqa: F401
+    Character,
+)
+from app.core.persistence.models.base import BaseModel
 
-env_file = os.getenv("ENV_FILE", ".env.test")
+env_file = os.getenv("ENV_FILE", ".env")
 load_dotenv(dotenv_path=env_file)
 
 print(os.getenv("DB_NAME"))
@@ -122,5 +125,7 @@ def do_run_migrations(connection):
     with context.begin_transaction():
         context.run_migrations()
 
+
+run_migrations_online()
 
 run_migrations_online()

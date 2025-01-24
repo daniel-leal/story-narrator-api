@@ -1,6 +1,7 @@
 from unittest.mock import AsyncMock, Mock
 
-from app.infrastructure.persistence.models.user import User
+from app.auth.infrastructure.persistence.models.user import User
+from app.character.domain.entities.character import Character
 
 
 class MockUserRepository:
@@ -53,3 +54,22 @@ class MockAuthService:
             The user to be returned when `get_by_email` is called.
         """
         self.user_repository.get_by_email.return_value = user
+
+
+class MockCharacterRepository:
+    """Mock for the UserRepository interface."""
+
+    def __init__(self) -> None:
+        self.save = AsyncMock()
+
+    def configure_save(self, character: Character | None):
+        """
+        Configures the mock save method to return the specified character.
+
+        Parameters
+        ----------
+        character : Character or None
+            The character object to be returned by the save method. If None, the save
+            method will return None.
+        """
+        self.save.return_value = character

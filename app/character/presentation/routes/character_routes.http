@@ -1,0 +1,21 @@
+@baseUrl = http://localhost:8001
+@characterId = 33f7bc52-4153-46a2-bc6c-183cae08d251
+
+### Create Character
+
+POST {{baseUrl}}/characters HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Max",
+  "favorite_color": "Blue",
+  "animal_friend": "Fox",
+  "superpower": "Flying",
+  "hobby": "Reading",
+  "personality": "Adventurous"
+}
+
+### Get Character
+
+GET {{baseUrl}}/characters/{{characterId}} HTTP/1.1
+Content-Type: application/json
