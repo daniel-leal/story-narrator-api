@@ -1,7 +1,7 @@
 # 📖 Story Narrator Backend
 
-![CI](https://github.com/daniel-leal/story-narrator-backend/actions/workflows/ci.yml/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/github/daniel-leal/story-narrator-backend/badge.svg?branch=main)](https://coveralls.io/github/daniel-leal/story-narrator-backend?branch=main)
+![CI](https://github.com/daniel-leal/story-narrator-api/actions/workflows/ci.yml/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/daniel-leal/story-narrator-api/badge.svg?branch=main)](https://coveralls.io/github/daniel-leal/story-narrator-api?branch=main)
 
 This repository contains the backend implementation for the Story Narrator application, built using FastAPI and SQLAlchemy with PostgreSQL as the database. The architecture emphasizes scalability, maintainability, and adherence to modern software engineering principles.
 
