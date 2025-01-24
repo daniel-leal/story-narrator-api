@@ -1,9 +1,6 @@
 name: Coveralls
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
