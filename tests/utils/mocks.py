@@ -1,7 +1,9 @@
+from typing import List
 from unittest.mock import AsyncMock, Mock
 
 from app.auth.infrastructure.persistence.models.user import User
 from app.character.domain.entities.character import Character
+from app.story.domain.entities.scenario import Scenario
 
 
 class MockUserRepository:
@@ -73,3 +75,21 @@ class MockCharacterRepository:
             method will return None.
         """
         self.save.return_value = character
+
+
+class MockScenarioRepository:
+    """Mock for the ScenarioRepository interface"""
+
+    def __init__(self) -> None:
+        self.get_all = AsyncMock()
+
+    def configure_get_all(self, scenarios: List[Scenario] | None):
+        """
+        Configures the mock get_all method to return the specified scenarios.
+
+        Parameters
+        ----------
+        scenarios : List[Scenario] or None
+            The list of scenarios of story
+        """
+        self.get_all.return_value = scenarios

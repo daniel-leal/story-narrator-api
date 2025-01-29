@@ -2,6 +2,7 @@ from factory import Factory, Faker
 
 from app.auth.domain.entities.user import User
 from app.character.domain.entities.character import Character
+from app.story.domain.entities.scenario import Scenario
 
 
 class UserFactory(Factory):
@@ -33,3 +34,16 @@ class CharacterFactory(Factory):
     )
     hobby = "Singing"
     personality = "Brave"
+
+
+class ScenarioFactory(Factory):
+    class Meta:
+        model = Scenario
+
+    id = Faker("uuid4")
+    name = Faker(
+        "random_element",
+        elements=["Enhanced Forest", "Space Dream", "Ice Kingdom"],
+    )
+    description = "Description of scenario"
+    available = True

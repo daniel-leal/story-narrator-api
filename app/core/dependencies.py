@@ -8,6 +8,8 @@ from app.character.infrastructure.repositories.character_repository import (
     CharacterRepository,
 )
 from app.core.database import get_async_session
+from app.story.application.use_cases.get_scenarios import GetScenariosUseCase
+from app.story.infrastructure.repositories.scenario_repository import ScenarioRepository
 
 
 async def get_auth_service(
@@ -53,3 +55,25 @@ async def get_create_character_use_case(
         An instance of CreateCharacterUseCase.
     """
     return CreateCharacterUseCase(character_repository)
+
+
+async def get_scenario_use_case(
+    db: AsyncSession = Depends(get_async_session),
+) -> GetScenariosUseCase:
+    """
+    Provides an instance of GetScenariosUseCase with the given ScenarioRepository
+    dependency.
+
+    Parameters
+    ----------
+    scenario_repository : ScenarioRepository, optional
+        The repository dependency for scenarios, by default Depends().
+
+    Returns
+    -------
+    GetScenariosUseCase
+        An instance of GetScenariosUseCase initialized with the provided scenario
+        repository.
+    """
+    scenario_repository = ScenarioRepository(db)
+    return GetScenariosUseCase(scenario_repository)

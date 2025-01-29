@@ -12,6 +12,7 @@ from app.character.infrastructure.persistence.models.character import (  # noqa:
     Character,
 )
 from app.core.persistence.models.base import BaseModel
+from app.story.infrastructure.persistence.models.scenario import Scenario  # noqa: F401
 
 env_file = os.getenv("ENV_FILE", ".env")
 load_dotenv(dotenv_path=env_file)
