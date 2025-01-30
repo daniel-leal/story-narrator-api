@@ -54,3 +54,44 @@ class ScenarioRepository(BaseScenarioRepository):
         scenario = result.scalar_one_or_none()
 
         return ScenarioEntity.model_validate(scenario) if scenario else None
+
+    async def get_by_name(self, name: str) -> ScenarioEntity | None:
+        """
+        Retrieve a scenario by its Name.
+
+        Parameters
+        ----------
+        name : str
+            The name of the scenario to retrieve.
+
+        Returns
+        -------
+        ScenarioEntity or None
+            The Scenario object if found, otherwise None.
+        """
+        result = await self.session.execute(select(ScenarioModel).filter_by(name=name))
+        scenario = result.scalar_one_or_none()
+
+        return ScenarioEntity.model_validate(scenario) if scenario else None
+
+    async def save(self, scenario: ScenarioEntity) -> ScenarioEntity:
+        """
+        Create a new scenario.
+
+        Parameters
+        ----------
+        scenario : ScenarioEntity
+            The scenario entity to create.
+
+        Returns
+        -------
+        ScenarioEntity
+            The created scenario entity.
+        """
+        scenario_model = ScenarioModel(**scenario.model_dump())
+
+        self.session.add(scenario_model)
+        await self.session.commit()
+        await self.session.refresh(scenario_model)
+
+        return ScenarioEntity.model_validate(scenario_model)

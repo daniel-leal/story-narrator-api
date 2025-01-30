@@ -128,3 +128,56 @@ async def test_get_by_id_with_invalid_uuid(scenario_repository: ScenarioReposito
     # Act & Assert
     with pytest.raises(sqlalchemy.exc.DBAPIError):
         await scenario_repository.get_by_id(invalid_scenario_id)  # type: ignore
+
+
+@pytest.mark.asyncio
+async def test_get_by_name_with_success(
+    scenario_repository: ScenarioRepository, async_db_session: AsyncSession
+):
+    # Arrange
+    factory: ScenarioEntity = ScenarioFactory.create(name="Mystic River")
+    async_db_session.add(
+        ScenarioModel(name=factory.name, description=factory.description)
+    )
+    await async_db_session.commit()
+
+    # Act
+    result = await scenario_repository.get_by_name("Mystic River")
+
+    # Assert
+    assert result is not None
+    assert result.name == factory.name
+    assert result.description == factory.description
+
+
+@pytest.mark.asyncio
+async def test_get_by_name_with_nonexistent_name(
+    scenario_repository: ScenarioRepository,
+):
+    # Act
+    result = await scenario_repository.get_by_name("Nonexistent Scenario")
+
+    # Assert
+    assert result is None
+
+
+@pytest.mark.asyncio
+async def test_save_scenario(scenario_repository: ScenarioRepository):
+    # Arrange
+    factory: ScenarioEntity = ScenarioFactory.create(name="New Scenario")
+
+    # Act
+    saved_scenario = await scenario_repository.save(factory)
+    scenario_id = saved_scenario.id
+
+    # Assert
+    assert saved_scenario is not None
+    assert scenario_id is not None
+    assert saved_scenario.name == factory.name
+    assert saved_scenario.description == factory.description
+
+    # Verify the scenario is actually saved in the database
+    result = await scenario_repository.get_by_id(scenario_id)
+    assert result is not None
+    assert result.name == factory.name
+    assert result.description == factory.description

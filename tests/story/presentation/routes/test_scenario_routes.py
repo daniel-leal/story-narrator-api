@@ -37,3 +37,25 @@ async def test_get_scenario_by_id_not_found(async_client: AsyncClient):
     assert response.status_code == 404
     data = response.json()
     assert data["detail"] == "Scenario not found"
+
+
+@pytest.mark.asyncio
+async def test_create_scenario(async_client: AsyncClient):
+    scenario_data = {"name": "New Scenario", "description": "New Description"}
+    response = await async_client.post("/scenarios/", json=scenario_data)
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["name"] == scenario_data["name"]
+    assert data["description"] == scenario_data["description"]
+
+
+@pytest.mark.asyncio
+async def test_create_scenario_invalid_data(async_client: AsyncClient):
+    scenario_data = {"name": "", "description": ""}
+
+    response = await async_client.post("/scenarios/", json=scenario_data)
+
+    assert response.status_code == 422
+    data = response.json()
+    assert "detail" in data

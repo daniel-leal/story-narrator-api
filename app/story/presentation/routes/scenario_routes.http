@@ -2,11 +2,32 @@
 
 ### Get All Scenarios
 
-GET {{baseUrl}}/scenarios HTTP/1.1
+GET {{baseUrl}}/scenarios/ HTTP/1.1
 Content-Type: application/json
 
 
 ### Get Scenario by id
 
-GET {{baseUrl}}/scenarios/8ff5e63e-a16c-4b20-8e72-20225ffc0fec HTTP/1.1
+GET {{baseUrl}}/scenarios/e88f75ed-dd07-47ef-9f1f-846ab0314ec7/ HTTP/1.1
 Content-Type: application/json
+
+
+### Create Scenario
+
+POST {{baseUrl}}/scenarios/ HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Monster's World",
+  "description": "A scenario from Disney World"
+}
+
+### Create Scenario Invalid Data
+
+POST {{baseUrl}}/scenarios/ HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "",
+  "description": ""
+}

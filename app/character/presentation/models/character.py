@@ -4,9 +4,7 @@ from pydantic import BaseModel, Field
 
 
 class CreateCharacterRequest(BaseModel):
-    """
-    Request model for creating a new character.
-    """
+    """Request model for creating a new character."""
 
     name: str = Field(
         ...,
@@ -41,9 +39,7 @@ class CreateCharacterRequest(BaseModel):
 
 
 class CreateCharacterResponse(BaseModel):
-    """
-    Response model for the created character.
-    """
+    """Response model for the created character."""
 
     id: UUID
     name: str

@@ -83,6 +83,8 @@ class MockScenarioRepository:
     def __init__(self) -> None:
         self.get_all = AsyncMock()
         self.get_by_id = AsyncMock()
+        self.get_by_name = AsyncMock()
+        self.save = AsyncMock()
 
     def configure_get_all(self, scenarios: List[Scenario] | None):
         """
@@ -102,6 +104,31 @@ class MockScenarioRepository:
         Parameters
         ----------
         scenario : Scenario or None
-            The scenario to be returned by the get_by_id method. If None, get_by_id will return None.
+            The scenario to be returned by the get_by_id method. If None, get_by_id will
+            return None.
         """
         self.get_by_id.return_value = scenario
+
+    def configure_get_by_name(self, scenario: Scenario | None):
+        """
+        Configures the mock to return a specific scenario when get_by_name is called.
+
+        Parameters
+        ----------
+        scenario : Scenario or None
+            The scenario to be returned by the get_by_name method. If None,
+            get_by_name will return None.
+        """
+        self.get_by_name.return_value = scenario
+
+    def configure_save(self, scenario: Scenario | None):
+        """
+        Configures the mock save method to return the specified scenario.
+
+        Parameters
+        ----------
+        scenario : Scenario or None
+            The scenario object to be returned by the save method. If None, the save
+            method will return None.
+        """
+        self.save.return_value = scenario

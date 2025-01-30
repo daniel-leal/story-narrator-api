@@ -8,6 +8,7 @@ from app.character.infrastructure.repositories.character_repository import (
     CharacterRepository,
 )
 from app.core.database import get_async_session
+from app.story.application.use_cases.create_scenario import CreateScenarioUseCase
 from app.story.application.use_cases.get_scenario import GetScenarioUseCase
 from app.story.application.use_cases.get_scenarios import GetScenariosUseCase
 from app.story.infrastructure.repositories.scenario_repository import ScenarioRepository
@@ -100,3 +101,23 @@ async def get_scenario_use_case(
     """
     scenario_repository = ScenarioRepository(db)
     return GetScenarioUseCase(scenario_repository)
+
+
+async def create_scenario_use_case(
+    db: AsyncSession = Depends(get_async_session),
+) -> CreateScenarioUseCase:
+    """
+    Creates an instance of CreateScenarioUseCase.
+
+    Parameters
+    ----------
+    db : AsyncSession, optional
+        The asynchronous database session, by default Depends(get_async_session)
+
+    Returns
+    -------
+    CreateScenarioUseCase
+        An instance of CreateScenarioUseCase.
+    """
+    scenario_repository = ScenarioRepository(db)
+    return CreateScenarioUseCase(scenario_repository)
