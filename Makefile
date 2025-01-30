@@ -1,5 +1,5 @@
 # Variables
-ENV_FILE ?= .env.test
+ENV_FILE := .env
 ALEMBIC := docker-compose exec app poetry run alembic
 DOCKER_COMPOSE := docker-compose
 
