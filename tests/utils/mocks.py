@@ -82,6 +82,7 @@ class MockScenarioRepository:
 
     def __init__(self) -> None:
         self.get_all = AsyncMock()
+        self.get_by_id = AsyncMock()
 
     def configure_get_all(self, scenarios: List[Scenario] | None):
         """
@@ -93,3 +94,14 @@ class MockScenarioRepository:
             The list of scenarios of story
         """
         self.get_all.return_value = scenarios
+
+    def configure_get_by_id(self, scenario: Scenario | None):
+        """
+        Configures the mock to return a specific scenario when get_by_id is called.
+
+        Parameters
+        ----------
+        scenario : Scenario or None
+            The scenario to be returned by the get_by_id method. If None, get_by_id will return None.
+        """
+        self.get_by_id.return_value = scenario

@@ -3,12 +3,6 @@ import pytest
 from app.story.application.use_cases.get_scenarios import GetScenariosUseCase
 from app.story.domain.entities.scenario import Scenario
 from tests.utils.fakers import ScenarioFactory
-from tests.utils.mocks import MockScenarioRepository
-
-
-@pytest.fixture
-def mock_scenario_repository():
-    return MockScenarioRepository()
 
 
 @pytest.mark.asyncio

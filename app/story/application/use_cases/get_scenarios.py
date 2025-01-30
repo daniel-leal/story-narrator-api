@@ -11,5 +11,12 @@ class GetScenariosUseCase:
         self.scenario_repository = scenario_repository
 
     async def execute(self) -> List[Scenario]:
-        """Returns a list of available scenarios."""
+        """
+        Returns a list of available scenarios.
+
+        Returns
+        -------
+        List of Scenario
+            The list of scenarios of a story
+        """
         return await self.scenario_repository.get_all()

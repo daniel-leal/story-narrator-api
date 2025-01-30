@@ -4,3 +4,9 @@
 
 GET {{baseUrl}}/scenarios HTTP/1.1
 Content-Type: application/json
+
+
+### Get Scenario by id
+
+GET {{baseUrl}}/scenarios/8ff5e63e-a16c-4b20-8e72-20225ffc0fec HTTP/1.1
+Content-Type: application/json
