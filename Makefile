@@ -1,5 +1,6 @@
 # Variables
 ENV_FILE := .env
+TEST_ENV_FILE := .env.test
 ALEMBIC := docker-compose exec app poetry run alembic
 DOCKER_COMPOSE := docker-compose
 
@@ -13,7 +14,7 @@ help:
 	@echo "  make docker-rebuild                   - Rebuild the Docker containers"
 	@echo "  make docker-logs                      - View logs of the application"
 	@echo "  make docker-app-shell                 - Open a shell inside the app container"
-	@echo "  make revision MESSAGE=\"message\"      - Create a new migration with Alembic"
+	@echo "  make revision MESSAGE=\"message\"     	- Create a new migration with Alembic"
 	@echo "  make upgrade                          - Apply the latest migrations"
 	@echo "  make downgrade                        - Rollback the last migration"
 	@echo "  make show                             - Display the current migration status"
@@ -21,6 +22,7 @@ help:
 	@echo "  make test                             - Run tests locally"
 	@echo "  make coverage                         - Run tests with coverage report"
 	@echo "  make coverage-html                    - Generate HTML coverage report"
+	@echo "  make interactive                    	 - Open FastAPI interactive shell"
 
 # Docker commands
 .PHONY: docker-up
@@ -72,16 +74,20 @@ run:
 
 .PHONY: test
 test:
-	@poetry run pytest
+	poetry run pytest
 
 .PHONY: coverage
 coverage:
-	@poetry run pytest --cov=app --cov-branch --cov-config=.coveragerc
+	poetry run pytest --cov=app --cov-branch --cov-config=.coveragerc
 
 .PHONY: coverage-html
 coverage-html:
-	@poetry run pytest --cov=app --cov-branch --cov-config=.coveragerc --cov-report=html
+	poetry run pytest --cov=app --cov-branch --cov-config=.coveragerc --cov-report=html
 
-.PHONY: coverage-html
+.PHONY: coverage-xml
 coverage-xml:
-	@poetry run pytest --cov=app --cov-branch --cov-config=.coveragerc --cov-report=xml
+	poetry run pytest --cov=app --cov-branch --cov-config=.coveragerc --cov-report=xml
+
+.PHONY: run
+interactive:
+	@poetry run python -i -m app.interactive_console

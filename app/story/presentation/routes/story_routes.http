@@ -1,0 +1,11 @@
+@baseUrl = http://localhost:8001
+
+
+POST {{baseUrl}}/stories/generate/ HTTP/1.1
+Content-Type: application/json
+
+{
+  "character_ids": ["1d9ece42-b411-4b7b-ab66-167a93c3c41d"],
+  "scenario_id": "e88f75ed-dd07-47ef-9f1f-846ab0314ec7",
+  "narrative_style": "adventure"
+}

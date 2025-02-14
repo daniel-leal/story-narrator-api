@@ -1,10 +1,10 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.character.application.use_cases.create_character import CreateCharacterUseCase
 from app.character.domain.entities.character import Character
-from app.character.infrastructure.repositories.character_repository import (
-    CharacterRepository,
+from app.core.dependencies import (
+    get_character_repository,
+    get_create_character_use_case,
 )
 from tests.utils.fakers import CharacterFactory
 
@@ -13,8 +13,8 @@ from tests.utils.fakers import CharacterFactory
 async def created_character(async_db_session: AsyncSession) -> Character:
     character_factory = CharacterFactory.create()
 
-    character_repository = CharacterRepository(async_db_session)
-    use_case = CreateCharacterUseCase(character_repository)
+    character_repository = get_character_repository(async_db_session)
+    use_case = get_create_character_use_case(character_repository)
 
     character = await use_case.execute(
         name=character_factory.name,

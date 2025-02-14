@@ -1,3 +1,5 @@
+import os
+
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,13 +10,20 @@ from app.character.infrastructure.repositories.character_repository import (
     CharacterRepository,
 )
 from app.core.database import get_async_session
-from app.story.application.use_cases.create_scenario import CreateScenarioUseCase
-from app.story.application.use_cases.get_scenario import GetScenarioUseCase
-from app.story.application.use_cases.get_scenarios import GetScenariosUseCase
-from app.story.infrastructure.repositories.scenario_repository import ScenarioRepository
+from app.scenario.application.use_cases.create_scenario import CreateScenarioUseCase
+from app.scenario.application.use_cases.get_scenario import GetScenarioUseCase
+from app.scenario.application.use_cases.get_scenarios import GetScenariosUseCase
+from app.scenario.infrastructure.repositories.scenario_repository import (
+    ScenarioRepository,
+)
+from app.story.application.use_cases.generate_story import GenerateStoryUseCase
+from app.story.domain.interfaces.story_generator import BaseStoryGenerator
+from app.story.infrastructure.ai.chatgpt_story_generator import ChatGPTStoryGenerator
+from app.story.infrastructure.ai.llama_story_generator import LlamaStoryGenerator
+from app.story.infrastructure.ai.local_story_generator import LocalStoryGenerator
 
 
-async def get_auth_service(
+def get_auth_service(
     db: AsyncSession = Depends(get_async_session),
 ) -> AuthService:
     """
@@ -34,13 +43,13 @@ async def get_auth_service(
     return AuthService(user_repository)
 
 
-async def get_character_repository(
+def get_character_repository(
     db: AsyncSession = Depends(get_async_session),
 ) -> CharacterRepository:
     return CharacterRepository(db)
 
 
-async def get_create_character_use_case(
+def get_create_character_use_case(
     character_repository: CharacterRepository = Depends(get_character_repository),
 ) -> CreateCharacterUseCase:
     """
@@ -59,8 +68,27 @@ async def get_create_character_use_case(
     return CreateCharacterUseCase(character_repository)
 
 
-async def get_scenarios_use_case(
+def get_scenario_repository(
     db: AsyncSession = Depends(get_async_session),
+) -> ScenarioRepository:
+    """
+    Provides a ScenarioRepository instance.
+
+    Parameters
+    ----------
+    db : AsyncSession, optional
+        The asynchronous database session, by default obtained from Depends(get_async_session).
+
+    Returns
+    -------
+    ScenarioRepository
+        An instance of ScenarioRepository initialized with the provided database session.
+    """
+    return ScenarioRepository(db)
+
+
+def get_scenarios_use_case(
+    scenario_repository: ScenarioRepository = Depends(get_scenario_repository),
 ) -> GetScenariosUseCase:
     """
     Provides an instance of GetScenariosUseCase with the given ScenarioRepository
@@ -77,12 +105,11 @@ async def get_scenarios_use_case(
         An instance of GetScenariosUseCase initialized with the provided scenario
         repository.
     """
-    scenario_repository = ScenarioRepository(db)
     return GetScenariosUseCase(scenario_repository)
 
 
-async def get_scenario_use_case(
-    db: AsyncSession = Depends(get_async_session),
+def get_scenario_use_case(
+    scenario_repository: ScenarioRepository = Depends(get_scenario_repository),
 ) -> GetScenarioUseCase:
     """
     Provides an instance of GetScenarioUseCase with the given ScenarioRepository
@@ -99,12 +126,11 @@ async def get_scenario_use_case(
         An instance of GetScenarioUseCase initialized with the provided scenario
         repository.
     """
-    scenario_repository = ScenarioRepository(db)
     return GetScenarioUseCase(scenario_repository)
 
 
-async def create_scenario_use_case(
-    db: AsyncSession = Depends(get_async_session),
+def get_create_scenario_use_case(
+    scenario_repository: ScenarioRepository = Depends(get_scenario_repository),
 ) -> CreateScenarioUseCase:
     """
     Creates an instance of CreateScenarioUseCase.
@@ -119,5 +145,45 @@ async def create_scenario_use_case(
     CreateScenarioUseCase
         An instance of CreateScenarioUseCase.
     """
-    scenario_repository = ScenarioRepository(db)
     return CreateScenarioUseCase(scenario_repository)
+
+
+def get_story_generator() -> BaseStoryGenerator:  # pragma: no cover
+    """
+    Returns the appropriate story generator based on configuration.
+    """
+    generator_type = os.getenv("STORY_GENERATOR", "local").lower()
+
+    if generator_type == "llama":
+        return LlamaStoryGenerator()
+    elif generator_type == "chatgpt":
+        return ChatGPTStoryGenerator()
+
+    return LocalStoryGenerator()
+
+
+def get_generate_story_use_case(
+    story_generator=Depends(get_story_generator),
+    character_repository=Depends(get_character_repository),
+    scenario_repository=Depends(get_scenario_repository),
+) -> GenerateStoryUseCase:
+    """
+    Provides an instance of GenerateStoryUseCase with its dependencies.
+
+    Parameters
+    ----------
+    story_generator : StoryGenerator, optional
+        The story generator dependency, by default Depends(get_story_generator).
+    character_repository : CharacterRepository, optional
+        The character repository dependency, by default Depends(get_character_repository).
+    scenario_repository : ScenarioRepository, optional
+        The scenario repository dependency, by default Depends(get_scenario_repository).
+
+    Returns
+    -------
+    GenerateStoryUseCase
+        An instance of GenerateStoryUseCase initialized with the provided dependencies.
+    """
+    return GenerateStoryUseCase(
+        story_generator, character_repository, scenario_repository
+    )

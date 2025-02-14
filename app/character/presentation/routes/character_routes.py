@@ -8,8 +8,8 @@ from app.character.infrastructure.repositories.character_repository import (
     CharacterRepository,
 )
 from app.character.presentation.models.character import (
+    CharacterResponse,
     CreateCharacterRequest,
-    CreateCharacterResponse,
 )
 from app.core.dependencies import (
     get_character_repository,
@@ -19,9 +19,7 @@ from app.core.dependencies import (
 router = APIRouter()
 
 
-@router.post(
-    "/", response_model=CreateCharacterResponse, status_code=status.HTTP_201_CREATED
-)
+@router.post("/", response_model=CharacterResponse, status_code=status.HTTP_201_CREATED)
 async def create_character(
     request: CreateCharacterRequest,
     create_character_use_case: CreateCharacterUseCase = Depends(
@@ -40,7 +38,7 @@ async def create_character(
 
     Returns
     -------
-    CreateCharacterResponse
+    CharacterResponse
         The created character response.
     """
     try:
@@ -52,7 +50,7 @@ async def create_character(
             hobby=request.hobby,
             personality=request.personality,
         )
-        return CreateCharacterResponse(**character.model_dump())
+        return CharacterResponse(**character.model_dump())
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

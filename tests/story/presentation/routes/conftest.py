@@ -1,8 +1,8 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.story.domain.entities.scenario import Scenario as ScenarioEntity
-from app.story.infrastructure.persistence.models.scenario import (
+from app.scenario.domain.entities.scenario import Scenario as ScenarioEntity
+from app.scenario.infrastructure.persistence.models.scenario import (
     Scenario as ScenarioModel,
 )
 from tests.utils.fakers import ScenarioFactory

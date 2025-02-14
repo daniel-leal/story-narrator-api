@@ -2,11 +2,13 @@ services:
   app:
     build: .
     volumes:
-      - .:/app
-      - /app/__pycache__/
+      - ./app:/app/app
+      - ./.env.docker:/app/.env.docker
     ports:
       - "8000:8000"
-    env_file: .env.docker
+    env_file:
+      - .env
+      - .env.docker
     command: >
       poetry run uvicorn app.main:app
       --host 0.0.0.0
@@ -19,11 +21,13 @@ services:
     build:
       context: .
     volumes:
-      - .:/app
+      - ./app:/app/app
+      - ./.env.docker:/app/.env.docker
     ports:
       - "8001:8000"
       - "5678:5678"
     env_file:
+      - .env
       - .env.docker
     depends_on:
       - db
