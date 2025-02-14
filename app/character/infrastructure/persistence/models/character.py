@@ -1,7 +1,7 @@
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.core.persistence.models.base import BaseModel
+from app.core.infrastructure.persistence.models.base import BaseModel
 
 
 class Character(BaseModel):

@@ -38,7 +38,7 @@ class CreateCharacterRequest(BaseModel):
     )
 
 
-class CreateCharacterResponse(BaseModel):
+class CharacterResponse(BaseModel):
     """Response model for the created character."""
 
     id: UUID

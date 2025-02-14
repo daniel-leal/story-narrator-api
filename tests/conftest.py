@@ -11,17 +11,28 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import DatabaseSessionManager, get_async_session
-from app.core.persistence.models.base import BaseModel
+from app.core.infrastructure.persistence.models.base import BaseModel
 from app.main import app
 
 logger = logging.getLogger(__name__)
 
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env.test"))
+env_file = os.path.join(os.path.dirname(__file__), "../.env.test")
+load_dotenv(dotenv_path=env_file, override=True)
+
 
 TEST_DATABASE_URL = (
     f"postgresql+asyncpg://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@"
     f"{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
 )
+
+
+@pytest.fixture(autouse=True)
+def setup_test_environment():
+    """Ensure test environment is properly set up before each test."""
+    # Verify we're using the test environment
+    assert os.getenv("ENV") == "test", "Test environment not properly loaded"
+    # Configure logging levels
+    logging.getLogger("sqlalchemy").setLevel(logging.WARNING)
 
 
 @pytest.fixture(scope="session")

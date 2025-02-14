@@ -3,7 +3,8 @@ from unittest.mock import AsyncMock, Mock
 
 from app.auth.infrastructure.persistence.models.user import User
 from app.character.domain.entities.character import Character
-from app.story.domain.entities.scenario import Scenario
+from app.scenario.domain.entities.scenario import Scenario
+from app.story.domain.entities.story import Story
 
 
 class MockUserRepository:
@@ -63,6 +64,7 @@ class MockCharacterRepository:
 
     def __init__(self) -> None:
         self.save = AsyncMock()
+        self.get_by_id = AsyncMock()
 
     def configure_save(self, character: Character | None):
         """
@@ -75,6 +77,17 @@ class MockCharacterRepository:
             method will return None.
         """
         self.save.return_value = character
+
+    def configure_get_by_id(self, character: Character | None):
+        """
+        Configures the mock to return a specific character when queried by ID.
+
+        Parameters
+        ----------
+        character : Character or None
+            The character to be returned by the mock. If None, the mock will return None.
+        """
+        self.get_by_id.return_value = character
 
 
 class MockScenarioRepository:
@@ -132,3 +145,26 @@ class MockScenarioRepository:
             method will return None.
         """
         self.save.return_value = scenario
+
+
+class MockStoryGenerator:
+    """Mock for the StoryGenerator interface"""
+
+    def __init__(self) -> None:
+        self.generate = AsyncMock()
+
+    def configure_generate(self, story: Story | None):
+        """
+        Configures the generation of a story.
+
+        Parameters
+        ----------
+        story : Story or None
+            The story object to be configured. If None, no configuration is applied.
+
+        Returns
+        -------
+        Story or None
+            The configured story object, or None if no story was provided.
+        """
+        self.generate.return_value = story

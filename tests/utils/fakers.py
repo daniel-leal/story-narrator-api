@@ -1,8 +1,9 @@
-from factory import Factory, Faker
+from factory import Factory, Faker, List, SubFactory
 
 from app.auth.domain.entities.user import User
 from app.character.domain.entities.character import Character
-from app.story.domain.entities.scenario import Scenario
+from app.scenario.domain.entities.scenario import Scenario
+from app.story.domain.entities.story import Story
 
 
 class UserFactory(Factory):
@@ -47,3 +48,17 @@ class ScenarioFactory(Factory):
     )
     description = "Description of scenario"
     available = True
+
+
+class StoryFactory(Factory):
+    class Meta:
+        model = Story
+
+    id = Faker("uuid4")
+    title = Faker("sentence")
+    content = Faker("paragraph")
+    characters = List([SubFactory(CharacterFactory) for _ in range(2)])
+    scenario = SubFactory(ScenarioFactory)
+    narrative_style = Faker(
+        "random_element", elements=["adventurous", "fantasy", "mistery"]
+    )

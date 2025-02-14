@@ -3,6 +3,7 @@
 omit =
     app/core/database.py
     app/main.py
+    app/interactive_console.py
 branch = True
 concurrency = gevent
 
