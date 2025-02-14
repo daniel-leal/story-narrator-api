@@ -41,7 +41,7 @@ async def test_story(test_characters, test_scenario):
 
 @pytest.mark.asyncio
 async def test_generate_story_success(
-    async_client: AsyncClient,
+    authenticated_client: AsyncClient,
     test_characters,
     test_scenario,
     test_story,
@@ -53,7 +53,7 @@ async def test_generate_story_success(
     }
 
     # Act
-    response = await async_client.post("/stories/generate", json=request_data)
+    response = await authenticated_client.post("/stories/generate", json=request_data)
 
     # Assert
     assert response.status_code == status.HTTP_201_CREATED
@@ -68,7 +68,7 @@ async def test_generate_story_success(
 
 @pytest.mark.asyncio
 async def test_generate_story_invalid_character_id(
-    async_client: AsyncClient,
+    authenticated_client: AsyncClient,
     test_scenario,
 ):
     """Test generating a story with non-existent character IDs"""
@@ -78,7 +78,7 @@ async def test_generate_story_invalid_character_id(
         "narrative_style": "adventure",
     }
 
-    response = await async_client.post("/stories/generate", json=request_data)
+    response = await authenticated_client.post("/stories/generate", json=request_data)
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
     assert (
@@ -89,7 +89,7 @@ async def test_generate_story_invalid_character_id(
 
 @pytest.mark.asyncio
 async def test_generate_story_multiple_characters(
-    async_client: AsyncClient,
+    authenticated_client: AsyncClient,
     async_db_session: AsyncSession,
 ):
     """Test generating a story with multiple characters"""
@@ -109,7 +109,7 @@ async def test_generate_story_multiple_characters(
         "narrative_style": "adventure",
     }
 
-    response = await async_client.post("/stories/generate", json=request_data)
+    response = await authenticated_client.post("/stories/generate", json=request_data)
 
     assert response.status_code == status.HTTP_201_CREATED
     response_data = response.json()
@@ -118,7 +118,7 @@ async def test_generate_story_multiple_characters(
 
 @pytest.mark.asyncio
 async def test_generate_story_invalid_scenario_id(
-    async_client: AsyncClient,
+    authenticated_client: AsyncClient,
     test_characters,
 ):
     """Test generating a story with non-existent scenario ID"""
@@ -128,7 +128,7 @@ async def test_generate_story_invalid_scenario_id(
         "narrative_style": "adventure",
     }
 
-    response = await async_client.post("/stories/generate", json=request_data)
+    response = await authenticated_client.post("/stories/generate", json=request_data)
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
     assert "Scenario not found" in response.json()["detail"]
@@ -136,7 +136,7 @@ async def test_generate_story_invalid_scenario_id(
 
 @pytest.mark.asyncio
 async def test_generate_story_invalid_narrative_style(
-    async_client: AsyncClient,
+    authenticated_client: AsyncClient,
     test_characters,
     test_scenario,
 ):
@@ -147,6 +147,6 @@ async def test_generate_story_invalid_narrative_style(
         "narrative_style": "",  # Empty narrative style
     }
 
-    response = await async_client.post("/stories/generate", json=request_data)
+    response = await authenticated_client.post("/stories/generate", json=request_data)
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY

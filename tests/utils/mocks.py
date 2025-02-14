@@ -35,6 +35,7 @@ class MockAuthService:
         self.verify_password = Mock()
         self.create_access_token = Mock()
         self.register_user = AsyncMock()
+        self.verify_token = Mock()
 
     def configure_register_user(self, user: User):
         """
@@ -57,6 +58,17 @@ class MockAuthService:
             The user to be returned when `get_by_email` is called.
         """
         self.user_repository.get_by_email.return_value = user
+
+    def configure_verify_token(self, token_data: dict | None):
+        """
+        Configure the return value of the `verify_token` method.
+
+        Parameters
+        ----------
+        token_data : dict | None
+            The token data to be returned when `verify_token` is called.
+        """
+        self.verify_token.return_value = token_data
 
 
 class MockCharacterRepository:
