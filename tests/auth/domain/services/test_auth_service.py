@@ -1,3 +1,6 @@
+from datetime import datetime, timedelta, timezone
+
+import jwt
 import pytest
 
 from app.auth.domain.entities.user import User
@@ -15,6 +18,16 @@ def mock_user_repository():
 @pytest.fixture
 def auth_service(mock_user_repository):
     return AuthService(mock_user_repository)
+
+
+@pytest.fixture
+def valid_payload():
+    """Create a valid token payload"""
+    return {
+        "sub": "123e4567-e89b-12d3-a456-426614174000",
+        "email": "test@example.com",
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=30),
+    }
 
 
 def test_hash_password(auth_service):
@@ -96,3 +109,107 @@ def test_create_access_token(auth_service):
     exp_timestamp = payload["exp"]
     exp_datetime = datetime.fromtimestamp(exp_timestamp, tz=timezone.utc)
     assert exp_datetime > datetime.now(timezone.utc)
+
+
+def test_verify_valid_token(auth_service, valid_payload):
+    """Test verification of a valid token succeeds"""
+    # Arrange
+    secret_key = "nKDXqKoG/pgP2rK7vsz2nHVbzl/2z/vWLGWzgiYcpVZaAQo941tg7Oeg"
+    algorithm = "HS256"
+    token = jwt.encode(valid_payload, secret_key, algorithm=algorithm)
+
+    # Act
+    decoded_payload = auth_service.verify_token(token)
+
+    # Assert
+    assert decoded_payload["email"] == valid_payload["email"]
+    assert decoded_payload["sub"] == valid_payload["sub"]
+
+
+def test_verify_expired_token(auth_service):
+    """Test verification of an expired token fails"""
+    # Arrange
+    secret_key = "nKDXqKoG/pgP2rK7vsz2nHVbzl/2z/vWLGWzgiYcpVZaAQo941tg7Oeg"
+    algorithm = "HS256"
+    expired_payload = {
+        "sub": "123e4567-e89b-12d3-a456-426614174000",
+        "email": "test@example.com",
+        "exp": datetime.now(timezone.utc) - timedelta(minutes=30),
+    }
+    token = jwt.encode(expired_payload, secret_key, algorithm=algorithm)
+
+    # Act & Assert
+    with pytest.raises(jwt.ExpiredSignatureError):
+        auth_service.verify_token(token)
+
+
+def test_verify_invalid_signature(auth_service, valid_payload):
+    """Test verification of token with invalid signature fails"""
+    # Arrange
+    wrong_secret = "wrong_secret_key"
+    algorithm = "HS256"
+    token = jwt.encode(valid_payload, wrong_secret, algorithm=algorithm)
+
+    # Act & Assert
+    with pytest.raises(jwt.InvalidSignatureError):
+        auth_service.verify_token(token)
+
+
+def test_verify_invalid_token_format(auth_service):
+    """Test verification of malformed token fails"""
+    # Arrange
+    invalid_token = "invalid.token.format"
+
+    # Act & Assert
+    with pytest.raises(jwt.InvalidTokenError):
+        auth_service.verify_token(invalid_token)
+
+
+def test_verify_token_missing_claims(auth_service):
+    """Test verification of token with missing claims"""
+    # Arrange
+    secret_key = "nKDXqKoG/pgP2rK7vsz2nHVbzl/2z/vWLGWzgiYcpVZaAQo941tg7Oeg"
+    algorithm = "HS256"
+    incomplete_payload = {
+        "sub": "123e4567-e89b-12d3-a456-426614174000",
+        # missing email and exp
+    }
+    token = jwt.encode(incomplete_payload, secret_key, algorithm=algorithm)
+
+    # Act
+    decoded_payload = auth_service.verify_token(token)
+
+    # Assert
+    assert "email" not in decoded_payload
+    assert decoded_payload["sub"] == incomplete_payload["sub"]
+
+
+def test_verify_token_with_different_algorithm(auth_service, valid_payload):
+    """Test verification of token with wrong algorithm fails"""
+    # Arrange
+    secret_key = "nKDXqKoG/pgP2rK7vsz2nHVbzl/2z/vWLGWzgiYcpVZaAQo941tg7Oeg"
+    token = jwt.encode(valid_payload, secret_key, algorithm="HS512")
+
+    # Act & Assert
+    with pytest.raises(jwt.InvalidAlgorithmError):
+        auth_service.verify_token(token)
+
+
+def test_token_verification_end_to_end(auth_service):
+    """Test complete flow of token creation and verification"""
+    # Arrange
+    user = User(
+        name="John Doe",
+        email="john.doe@example.com",
+        hashed_password="hashed_pwd",
+        is_active=True,
+    )
+
+    # Act
+    token = auth_service.create_access_token(user)
+    decoded_payload = auth_service.verify_token(token)
+
+    # Assert
+    assert decoded_payload["email"] == user.email
+    assert decoded_payload["sub"] == str(user.id)
+    assert "exp" in decoded_payload

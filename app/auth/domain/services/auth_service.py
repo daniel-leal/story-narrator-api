@@ -16,6 +16,11 @@ class AuthService:
 
     def __init__(self, user_repository: BaseUserRepository) -> None:
         self.user_repository = user_repository
+        self.secret_key = os.getenv("JWT_SECRET_KEY", "default_secret")
+        self.algorithm = os.getenv("JWT_ALGORITHM", "HS256")
+        self.access_token_expire_minutes = int(
+            os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", 30)
+        )
 
     def hash_password(self, password: str) -> str:
         """
@@ -92,13 +97,33 @@ class AuthService:
             JWT token.
         """
         expire = datetime.now(timezone.utc) + timedelta(
-            minutes=int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", 30))
+            minutes=self.access_token_expire_minutes
         )
         payload = {
             "sub": str(user.id),
             "email": user.email,
             "exp": expire,
         }
-        secret_key = os.getenv("JWT_SECRET_KEY", "default_secret")
-        algorithm = os.getenv("JWT_ALGORITHM", "HS256")
-        return jwt.encode(payload, secret_key, algorithm=algorithm)
+
+        return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
+
+    def verify_token(self, token: str) -> dict:
+        """
+        Verify and decode a JWT token.
+
+        Parameters
+        ----------
+        token : str
+            JWT token to verify.
+
+        Returns
+        -------
+        dict
+            Decoded token payload.
+
+        Raises
+        ------
+        JWTError
+            If token is invalid or expired.
+        """
+        return jwt.decode(token, self.secret_key, algorithms=[self.algorithm])

@@ -1,8 +1,11 @@
 import asyncio
 import logging
 import os
+from datetime import UTC, datetime
 from typing import AsyncGenerator
+from uuid import uuid4
 
+import jwt
 import pytest
 import pytest_asyncio
 from asgi_lifespan import LifespanManager
@@ -10,9 +13,11 @@ from dotenv import load_dotenv
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.auth.domain.entities.user import User
 from app.core.database import DatabaseSessionManager, get_async_session
 from app.core.infrastructure.persistence.models.base import BaseModel
 from app.main import app
+from tests.utils.mocks import MockAuthService
 
 logger = logging.getLogger(__name__)
 
@@ -101,3 +106,48 @@ async def async_client(async_db_session: AsyncSession):
             yield client
 
     app.dependency_overrides.pop(get_async_session, None)
+
+
+@pytest.fixture
+def test_user():
+    """Create a test user"""
+    return User(
+        id=uuid4(),
+        name="test_user",
+        email="test@example.com",
+        hashed_password="hashed_password",
+        is_active=True,
+    )
+
+
+@pytest.fixture
+def auth_token(test_user):
+    """Create a valid JWT token for test user"""
+    secret_key = os.getenv("JWT_SECRET_KEY", "test_secret")
+    algorithm = os.getenv("JWT_ALGORITHM", "HS256")
+
+    payload = {
+        "email": test_user.email,
+        "sub": str(test_user.id),
+        "exp": datetime.now(UTC).timestamp() + 3600,  # 1 hour expiration
+    }
+    return jwt.encode(payload, secret_key, algorithm=algorithm)
+
+
+@pytest.fixture
+def mock_auth_service(test_user):
+    """Create a mock auth service with configured user repository"""
+    auth_service = MockAuthService()
+    auth_service.user_repository.get_by_email.return_value = test_user
+    auth_service.configure_verify_token({"email": test_user.email})
+    return auth_service
+
+
+@pytest_asyncio.fixture
+async def authenticated_client(async_client, auth_token, mock_auth_service):
+    """Create an authenticated client with valid JWT token"""
+    headers = {"Authorization": f"Bearer {auth_token}"}
+    async_client.headers.update(headers)
+
+    app.state.auth_service = mock_auth_service
+    return async_client
