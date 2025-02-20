@@ -9,35 +9,43 @@ import jwt
 import pytest
 import pytest_asyncio
 from asgi_lifespan import LifespanManager
-from dotenv import load_dotenv
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.domain.entities.user import User
 from app.core.database import DatabaseSessionManager, get_async_session
 from app.core.infrastructure.persistence.models.base import BaseModel
+from app.core.settings.config import load_environment
 from app.main import app
 from tests.utils.mocks import MockAuthService
 
 logger = logging.getLogger(__name__)
 
-env_file = os.path.join(os.path.dirname(__file__), "../.env.test")
-load_dotenv(dotenv_path=env_file, override=True)
+settings = load_environment("testing")
 
 
-TEST_DATABASE_URL = (
-    f"postgresql+asyncpg://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@"
-    f"{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
-)
+@pytest.fixture(autouse=True, scope="session")
+def test_settings():
+    """
+    Automatically set up test environment variables before running tests.
+    This ensures consistent settings across all tests.
+    """
+    # Set environment variables for testing
+    os.environ["JWT_SECRET_KEY"] = (
+        "nKDXqKoG/pgP2rK7vsz2nHVbzl/2z/vWLGWzgiYcpVZaAQo941tg7Oeg"
+    )
+    os.environ["JWT_ALGORITHM"] = "HS256"
+    os.environ["JWT_ACCESS_TOKEN_EXPIRE_MINUTES"] = "30"
 
+    # Load test settings
+    test_settings = load_environment("testing")
 
-@pytest.fixture(autouse=True)
-def setup_test_environment():
-    """Ensure test environment is properly set up before each test."""
-    # Verify we're using the test environment
-    assert os.getenv("ENV") == "test", "Test environment not properly loaded"
-    # Configure logging levels
-    logging.getLogger("sqlalchemy").setLevel(logging.WARNING)
+    # Override the settings in the main application
+    from app.core.settings import config
+
+    config.settings = test_settings
+
+    return test_settings
 
 
 @pytest.fixture(scope="session")
@@ -57,7 +65,7 @@ async def session_manager():
     """
     Create the DatabaseSessionManager in the same event loop used by tests.
     """
-    manager = DatabaseSessionManager(TEST_DATABASE_URL)
+    manager = DatabaseSessionManager(settings.get_database_url())
     manager.init_db()
     yield manager
 
@@ -123,8 +131,8 @@ def test_user():
 @pytest.fixture
 def auth_token(test_user):
     """Create a valid JWT token for test user"""
-    secret_key = os.getenv("JWT_SECRET_KEY", "test_secret")
-    algorithm = os.getenv("JWT_ALGORITHM", "HS256")
+    secret_key = settings.JWT_SECRET_KEY
+    algorithm = settings.JWT_ALGORITHM
 
     payload = {
         "email": test_user.email,
@@ -138,6 +146,9 @@ def auth_token(test_user):
 def mock_auth_service(test_user):
     """Create a mock auth service with configured user repository"""
     auth_service = MockAuthService()
+    auth_service.secret_key = settings.JWT_SECRET_KEY
+    auth_service.algorithm = settings.JWT_ALGORITHM
+    auth_service.access_token_expire_minutes = settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
     auth_service.user_repository.get_by_email.return_value = test_user
     auth_service.configure_verify_token({"email": test_user.email})
     return auth_service

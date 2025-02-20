@@ -1,4 +1,3 @@
-import os
 from datetime import datetime, timedelta, timezone
 
 import jwt
@@ -7,6 +6,7 @@ from passlib.context import CryptContext
 from app.auth.domain.entities.user import User
 from app.auth.domain.exceptions.user_exceptions import UserAlreadyRegisteredError
 from app.auth.domain.interfaces.user_repository import BaseUserRepository
+from app.core.settings.config import settings
 
 
 class AuthService:
@@ -16,11 +16,9 @@ class AuthService:
 
     def __init__(self, user_repository: BaseUserRepository) -> None:
         self.user_repository = user_repository
-        self.secret_key = os.getenv("JWT_SECRET_KEY", "default_secret")
-        self.algorithm = os.getenv("JWT_ALGORITHM", "HS256")
-        self.access_token_expire_minutes = int(
-            os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", 30)
-        )
+        self.secret_key = settings.JWT_SECRET_KEY
+        self.algorithm = settings.JWT_ALGORITHM
+        self.access_token_expire_minutes = settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
 
     def hash_password(self, password: str) -> str:
         """

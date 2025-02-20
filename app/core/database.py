@@ -1,9 +1,7 @@
 import contextlib
 import logging
-import os
 from typing import AsyncIterator
 
-from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import (
     AsyncConnection,
     AsyncEngine,
@@ -12,10 +10,10 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
+from app.core.settings.config import settings
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-load_dotenv()
 
 
 class DatabaseSessionManager:
@@ -112,12 +110,7 @@ class DatabaseSessionManager:
             await session.close()
 
 
-DATABASE_URL = (
-    f"postgresql+asyncpg://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@"
-    f"{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
-)
-
-sessionmanager = DatabaseSessionManager(DATABASE_URL)
+sessionmanager = DatabaseSessionManager(settings.get_database_url())
 
 
 async def get_async_session():

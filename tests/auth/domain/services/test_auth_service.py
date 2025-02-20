@@ -11,13 +11,14 @@ from tests.utils.mocks import MockUserRepository
 
 @pytest.fixture
 def mock_user_repository():
-    """Fixture for a mocked UserRepository"""
     return MockUserRepository()
 
 
 @pytest.fixture
 def auth_service(mock_user_repository):
-    return AuthService(mock_user_repository)
+    service = AuthService(mock_user_repository)
+
+    return service
 
 
 @pytest.fixture
@@ -84,7 +85,7 @@ async def test_register_user_email_exists(auth_service, mock_user_repository):
     mock_user_repository.save.assert_not_called()
 
 
-def test_create_access_token(auth_service):
+def test_create_access_token(auth_service, test_settings):
     user = User(
         name="John Doe",
         email="john.doe@example.com",
@@ -98,8 +99,8 @@ def test_create_access_token(auth_service):
 
     import jwt
 
-    secret_key = "nKDXqKoG/pgP2rK7vsz2nHVbzl/2z/vWLGWzgiYcpVZaAQo941tg7Oeg"
-    algorithm = "HS256"
+    secret_key = test_settings.JWT_SECRET_KEY
+    algorithm = test_settings.JWT_ALGORITHM
     payload = jwt.decode(token, secret_key, algorithms=[algorithm])
 
     assert payload["sub"] == str(user.id)
@@ -111,11 +112,11 @@ def test_create_access_token(auth_service):
     assert exp_datetime > datetime.now(timezone.utc)
 
 
-def test_verify_valid_token(auth_service, valid_payload):
+def test_verify_valid_token(auth_service, valid_payload, test_settings):
     """Test verification of a valid token succeeds"""
     # Arrange
-    secret_key = "nKDXqKoG/pgP2rK7vsz2nHVbzl/2z/vWLGWzgiYcpVZaAQo941tg7Oeg"
-    algorithm = "HS256"
+    secret_key = test_settings.JWT_SECRET_KEY
+    algorithm = test_settings.JWT_ALGORITHM
     token = jwt.encode(valid_payload, secret_key, algorithm=algorithm)
 
     # Act

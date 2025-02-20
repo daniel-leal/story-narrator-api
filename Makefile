@@ -1,7 +1,6 @@
 # Variables
 ENV_FILE := .env
-TEST_ENV_FILE := .env.test
-ALEMBIC := docker-compose exec app poetry run alembic
+ALEMBIC := poetry run alembic
 DOCKER_COMPOSE := docker-compose
 
 # Help command

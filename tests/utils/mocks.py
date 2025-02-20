@@ -1,5 +1,8 @@
+from datetime import UTC, datetime
 from typing import List
 from unittest.mock import AsyncMock, Mock
+
+import jwt
 
 from app.auth.infrastructure.persistence.models.user import User
 from app.character.domain.entities.character import Character
@@ -36,6 +39,9 @@ class MockAuthService:
         self.create_access_token = Mock()
         self.register_user = AsyncMock()
         self.verify_token = Mock()
+        self.secret_key: str = "test-secret-key"
+        self.algorithm: str = "HS256"
+        self.access_token_expire_minutes: int = 30
 
     def configure_register_user(self, user: User):
         """
@@ -69,6 +75,18 @@ class MockAuthService:
             The token data to be returned when `verify_token` is called.
         """
         self.verify_token.return_value = token_data
+
+    def create_access_token(self, user: User) -> str:
+        """Create a mock JWT token."""
+        expiration = datetime.now(UTC).timestamp() + (
+            self.access_token_expire_minutes * 60
+        )
+        payload = {
+            "sub": str(user.id),
+            "email": user.email,
+            "exp": expiration,
+        }
+        return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
 
 
 class MockCharacterRepository:
