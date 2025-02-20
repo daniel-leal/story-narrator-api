@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 from datetime import UTC, datetime
 from typing import AsyncGenerator
 from uuid import uuid4
@@ -21,6 +22,30 @@ from tests.utils.mocks import MockAuthService
 logger = logging.getLogger(__name__)
 
 settings = load_environment("testing")
+
+
+@pytest.fixture(autouse=True, scope="session")
+def test_settings():
+    """
+    Automatically set up test environment variables before running tests.
+    This ensures consistent settings across all tests.
+    """
+    # Set environment variables for testing
+    os.environ["JWT_SECRET_KEY"] = (
+        "nKDXqKoG/pgP2rK7vsz2nHVbzl/2z/vWLGWzgiYcpVZaAQo941tg7Oeg"
+    )
+    os.environ["JWT_ALGORITHM"] = "HS256"
+    os.environ["JWT_ACCESS_TOKEN_EXPIRE_MINUTES"] = "30"
+
+    # Load test settings
+    test_settings = load_environment("testing")
+
+    # Override the settings in the main application
+    from app.core.settings import config
+
+    config.settings = test_settings
+
+    return test_settings
 
 
 @pytest.fixture(scope="session")
