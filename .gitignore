@@ -41,6 +41,7 @@ migrations/versions/*.pyc
 
 # Environment variables
 .env
+.env.docker
 
 # Docker
 docker-compose.override.yml

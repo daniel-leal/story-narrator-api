@@ -8,6 +8,7 @@ from app.core.database import sessionmanager
 from app.core.dependencies import get_auth_service
 from app.core.docs.openapi import custom_openapi
 from app.core.router import include_routers
+from app.core.settings.config import settings
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -29,8 +30,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     lifespan=lifespan,
-    title="Story Narrator API",
-    version="0.3.0",
+    title=settings.APP_NAME,
+    version=settings.APP_VERSION,
     description="API for generating stories with characters and scenarios",
     contact={
         "name": "Daniel Leal",

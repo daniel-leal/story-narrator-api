@@ -7,7 +7,6 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - .env
       - .env.docker
     command: >
       poetry run uvicorn app.main:app
@@ -27,7 +26,6 @@ services:
       - "8001:8000"
       - "5678:5678"
     env_file:
-      - .env
       - .env.docker
     depends_on:
       - db
